@@ -1,0 +1,48 @@
+Readme Tema 1 PC 
+@Author : Jalba Cristian 323 CA
+
+	Implementarea acestei teme a pornit de la scheletul de cod de la 
+laboratorul al 3-lea de PC . Doar send si receive au trebuit refacute de la 0. 
+Numele fisierul de transmis e primit la parametru pentru run_experiment .
+Fisierul e citit in send prin intermediul lui buffer care are dimensiune 
+variabila (intr 1 si 60 octeti) . Construim mesajul neimpachetat format din 
+sequence_number , buffer , checksum (checksum e calculat folosind o functie 
+din lib.h care face XOR pe toti octetii din buffer si sequence_number).
+Acest mesaj il impachetam si il trimitem la receiver. 
+Scriu in LOG informatiile mesajului trimis .
+
+	Odata ajuns la receiver ii recalculez checksum si verific daca corespund.
+Daca nu , inseamna ca e corupt mesajul primit deci ii zic sa il trimita din nou.
+Scriu in LOG ca am calculat checksum si am detectat eroare. Voi trimite ACK pentru 
+ultimul cadru corect pe care l-am primit .
+Daca checksum-urile corespund inseamna ca mesajul nu e corupt si verific daca e
+mesajul asteptat de mine . Daca sequence number din mesaj si sequence-ul mesajului 
+ce il astept in receiver nu corespund ,inseamna ca e o copie si ii cer
+sa retransmita mesajul.Daca totul e in regula trimit ACK si scriu in LOG mesajul de ACK
+si scriu si in output mesajul primit.
+	!Codul merge foarte bine si pentru poze sau orice tip . Singura problema e ca 
+log-ul nu va putea sa scrie corect payload-urile  (formaturi diferite).
+	
+	Intre timp , send-ul asteapta sa primeasca reply de la receiver , adica acel ACK. 
+Pe drum ACK-ul se poate corupe sau poate fi intarziat . Verific mai intai daca vine un 
+ACK , daca nu vine nici unul mai trimit inca o data mesajul (trece de TIMEOUT).
+Afisez in LOG mesajul de timeout.	
+	
+	In run_experiment.sh am considerat ca e cel mai bine sa setez astfel :
+	
+SPEED=1000
+DELAY=150
+LOSS=0
+CORRUPT=50
+FILE=$1
+	
+	Speed-ul relativ mare face executia mica , corrupt 50 face sa fie macar un sfert 
+din mesaje din log in corrupt , iar delay 150 asigura intarzierea multor pachete.
+
+	Programului ii ia 10-15 secunde sa ruleze fiindca se umple log-ul de multe mesaje.
+	Mare parte din cod e explicata prin comentarii.
+	Pentru intrebari , nelamuriri ma puteti contacta la adresa : 
+					
+							jalba.cristian0493@gmail.com
+							
+	Pare rau daca coding-style-lul a avut de suferit :D .

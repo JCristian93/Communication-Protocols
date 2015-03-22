@@ -1,0 +1,61 @@
+Readme TEMA 4 PC
+@author Jalba Cristian 323 CA
+
+In implementarea temei m-am bazat pe notiunile invatzate de la laboratorul de DNS
+protocoalele RFC 1034 , 1035 si capitolul 15 din DNS Messages.
+Pentru inceput , trebuie sa mentionez ca am avut mari dificultati deoarece
+serverul 141.85.128.1 a fost down si nu am putut verifica in totalitate daca
+MX merge corect .
+
+Am verificat optiunea primita prin argv[2] . Daca aceasta e PTR , inseamna ca
+trebuie sa inversez ip-ul si sa ii adaug la final 7in-addr4arpa0 . Din pacate
+la mine PTR merge partial , adica facce conexiunea cu serverul , si in loc sa se
+comporte ca un NS , cum l-am pus sa fie , nu face nimic . Inainte mergea ca un
+SOA (din pacate nu era un SOA prea bun) dar am facut cateva modificari .
+
+In caz ca optiunea nu e PTR , se comporta normal (puteti da www.yahoo.com sau
+www.google.com cu orice optiune non-PTR si va merge bn).Pentru conexiunea la
+server am ales setsockopt , puteam folosi si select dar era mai ineficient
+deoarece select e bun pentru situatii in care te conectezi la mai multe servere
+de o data (ceea ce nu e cazul). sendto si recvfrom in loc de send si recv
+deoarece dupa ultimele 2 nu reuseau sa faca conexiunea in asociere cu setsockopt.
+
+Primii 6 bytes ii ignor cand vreau sa extrag informatiile din RR-uri deoarece
+primii 2 reprezinta id-ul si nu e necesar , analog pentru QR , OPCODE , etc si
+QDCOUNT care e folosit numai cand trimiti mai multe interogari de DNS .
+
+urmatorii 6 bytes reprezinta ancount , nscount , arcount , ce reprezinta numarul
+de elemente din fiecare sectiune
+
+extrag quetion-ul , adica numele si tipul interogarii (type).
+
+in fiecare sectiune extrag numele , tipul si clasa raspunsului , dupa care
+in functie de ce tip este RR-ul , determin cum sa abordez informatia utila (RDATA)
+care se afla dupa TTL , RLENGTH (lungimea informatiei RDATA).
+Ma simt nevoit sa imi cer scuze pentru faptul ca in loc de NUME CLASS TYPE
+am pus NUME TYPE CLASS , am observat prea tarziu ca trebuie sa schimb acest format,
+am scris dupa cum a fost prezentat in capitolul 15 din DNS Messages .
+De asemenea imi pare rau ca nu am modularizat mai bine codul , e grotesc acel
+copy/paste al sectiunii ancount si transformat in nscount si arcount cand puteam
+foarte bine sa fac o functie care sa fie apelata in fiecare count . Am incercat
+asta dar am avut probleme cand am incercat sa pastrez o pozitie generala (acel
+position cu care ma tot plimb prin cod).
+
+In principiu codul e destul de simplu , recunosc ca nu e cel mai clar cod , dar
+daca e luat in profunzime devine evident . Pur si simplu am afisat fiecare byte
+din raspunsul DNS-ului intr-un fisier si am observat cum trebuie sa tratez fiecare
+caz de tip RR .
+
+Mesajul inainte de a fi trimis la DNS l-am afisat in hexa in fisierul message.log
+iar raspunsul serverului prelucrat de dnsclient.c se afla in logfile.
+logfile e in modul append asa nu se va sterge vechiul continut la o noua rulare.
+
+Pentru TXT am inteles ca trebuie doar sa afisez cat imi specifica acei 2 octeti
+tupa tipul TXT . Mai exact sa nu mai tin seama daca informatia pe care o afisez
+are pointeri in ea sau respecta un anume format , doar sa afisez brut ce gasesc .
+
+In rest daca mai aveti intrebari sau nelamuriri , sper sa fie suficiente
+comentariile din cod .
+
+Recunosc ca a fost interesanta tema , am stat peste 7 zile la ea dar a meritat
+efortul :) .
